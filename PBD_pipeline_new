@@ -1,0 +1,59 @@
+#!/bin/bash
+
+### PBD SIMULATION PIPELINE
+
+# 1) SIMULATE THE TREES
+
+
+for b in  0.3 0.4 0.5 0.6 0.7 0.8 # 6 values of beta (speciation initiation rate) = 0.3 0.4 0.5 0.6 0.7 0.8
+do
+for l in 0.1 0.3 1                # 3 values of lambda (speciation completion rate)
+do
+for m in 0 0.1 0.2                # 3 values of mu (speciation extinction rate)
+do
+
+
+echo "#!/bin/bash" > sim.$b.$l.$m
+echo "#SBATCH --nodes=1">> sim.$b.$l.$m
+echo "#SBATCH --time=240:00:00" >> sim.$b.$l.$m
+echo "#SBATCH --mem=10GB" >> sim.$b.$l.$m
+echo "cd #HOME" >> sim.$b.$l.$m
+echo "cd R" >> sim.$b.$l.$m
+echo "module load R" >> sim.$b.$l.$m
+echo "Rscript /home/s3033724/PBDproject/scripts/DoMyTrees.R $b $l $m $n" >> sim.$b.$l.$m
+
+sbatch --partition=nodes --mail-type=FAIL --mail-user=camille.anna.simonet@gmail.com sim.$b.$l.$m
+
+
+done
+done
+done
+
+
+
+# 2) ESTIMATE PARAMETERS WITH ML
+
+
+for b in  0.3 # 6 values of beta (speciation initiation rate) = 0.3 0.4 0.5 0.6 0.7 0.8
+do
+for l in 0.1 0.3 1                # 3 values of lambda (speciation completion rate)
+do
+for m in 0 0.1 0.2                # 3 values of mu (speciation extinction rate)
+do
+
+
+echo "#!/bin/bash" > MLE.$b.$l.$m
+echo "#SBATCH --nodes=1">> MLE.$b.$l.$m
+echo "#SBATCH --time=70:00:00" >> MLE.$b.$l.$m
+echo "#SBATCH --mem=10GB" >> MLE.$b.$l.$m
+echo "cd #HOME" >> MLE.$b.$l.$m
+echo "cd R" >> MLE.$b.$l.$m
+echo "module load R" >> MLE.$b.$l.$m
+echo "Rscript /home/s3033724/PBDproject/scripts/Estimate_Parameters.R $b $l $m $n" >> MLE.$b.$l.$m
+
+sbatch --partition=nodes --mail-type=FAIL --mail-user=camille.anna.simonet@gmail.com MLE.$b.$l.$m
+
+
+done
+done
+done
